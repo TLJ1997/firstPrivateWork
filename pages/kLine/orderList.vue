@@ -52,6 +52,9 @@
 	export default {
 		data() {
 			return {
+				kuangjiList: [],
+				
+				
 				isShowBalls: false,
 				isQiandao: false,
 				qiandaoClass: {
@@ -61,7 +64,6 @@
 				balls: [], //
 				ballCount: 50, //数量
 				showBiAn: false,
-				windowHeight: 0,
 				type: '', //币种类型
 				header_H: 0,
 				statusBarH: '',
@@ -81,13 +83,12 @@
 					buttonBg: buttonBg
 				},
 				show3: false,
-				kuangjiList: [],
+				
 				mima: '',
 				shu: '',
 				jiming: '',
 				qian: '',
 				userToken: uni.getStorageSync('user-token'),
-				fenbi: 0,
 				laiid: '',
 				fromId: 0,
 				zhimi: false, //是否绑定支付密码
@@ -96,152 +97,29 @@
 		},
 		onShow() {
 			this.sel = 0;
-			this.loadOrder();
-			uni.request({
-				url: this.webUrl + '/api/fenhongbl', //仅为示例，并非真实接口地址。
-				method: 'GET',
-				header: {
-					'content-type': 'application/x-www-form-urlencoded', //自定义请求头信息
-					Authorization: this.userToken,
-					'Accept-Language': 'zh'
-				},
-				success: res => {
-					console.log(res.data);
-					if (res.data.status == 1000) {
-						this.fenbi = res.data.data.bili;
-					}
-					if (res.data.code == 444) {
-						uni.reLaunch({
-							url: '../login'
-						});
-					}
-				}
-			});
+			// this.loadOrder();
 			/* 是否绑定支付密码 */
 			this.checkPayPwd();
 		},
 		onLoad() {
 			var This = this;
+			// 获取矿机列表
 			this.getList();
-			/* 获取免费信息 */
-			this.getFreeInfo();
 
 			uni.getSystemInfo({
 				success(res) {
 					This.statusBarH = res.statusBarHeight;
-					This.windowHeight = res.windowHeight;
 				}
 			});
-			var view = uni.createSelectorQuery().select('.header');
-			view.boundingClientRect(data => {
-			}).exec();
 
-			this.getIsSignIn();
-		},
-		onPullDownRefresh() {
-			uni.showLoading({
-				title: '加载中...'
-			}); //出现加载中图标
-			var that = this;
-			setTimeout(function() {
-				uni.hideLoading();
-				uni.showToast({
-					title: '刷新',
-					icon: 'success',
-					duration: 1000
-				});
-				uni.stopPullDownRefresh(); //关闭刷新，不关闭会一直刷新不加载内容
-			}, 1000); //1s后关闭刷新
 		},
 		methods: {
-			getIsSignIn() {
-				let _this = this;
-				let sendData = {
-					token: uni.getStorageSync('token'),
-					userId: uni.getStorageSync('id')
-				};
-				uni.request({
-					url: this.websiteUrlzhh + 'afd/isSignIn', //仅为示例，并非真实接口地址。
-					data: sendData,
-					header: {
-						'Content-Type': 'application/x-www-form-urlencoded',
-						"Accept-Language": 'zh'
-					},
-					method: 'POST',
-					success: res => {
-						console.log(res.data);
-						console.log("是否已签:" + res.data.data);
-						if (res.data.code == 200) {
-
-							if (!res.data.data) {
-								_this.isShowBalls = true;
-								_this.generateBalls();
-							}
-
-						} else if (res.data.code == 500) {} else if (res.data.code == 402) {
-							if (uni.getStorageSync('isOpenFingerprint') == 1 || uni.getStorageSync('isOpenGesture') == 1) {
-								console.log('开启了指纹手势可以验证登录');
-								uni.reLaunch({
-									url: '../../indexzhiwen/indexzhiwen'
-								});
-							} else {
-								console.log('没开启指纹手势去登录');
-								uni.reLaunch({
-									url: '../../login/login'
-								});
-							}
-						}
-					}
-				});
-			},
-			// /* 生成数据 */
-			// generateBalls() {
-			// 	this.balls = [];
-			// 	for (let i = 0; i < this.ballCount; i++) {
-			// 		this.balls.push({
-			// 			css: {
-			// 				right: Math.random() * 80 + 'vw',
-			// 				bottom: Math.random() * 50 + 'vh'
-			// 			},
-			// 			text: (Math.floor(Math.random() * 10) * 0.0001).toFixed(4)
-			// 		});
-			// 	}
-			// },
-			getWithdraw() {
-				var _this = this;
-				uni.request({
-					url: this.websiteUrlzhh + '/afd/withdraw',
-					method: 'POST',
-					header: {
-						'content-type': 'application/x-www-form-urlencoded', //自定义请求头信息
-						'Accept-Language': 'zh'
-					},
-					data: {
-						token: uni.getStorageSync('token'),
-						userId: uni.getStorageSync('id')
-					},
-					success: res => {
-						console.log(res.data);
-						if (res.data.code == 200) {
-							console.log('获取到的数据:' + JSON.stringify(res));
-						}
-						if (res.data.code == 402) {
-							uni.reLaunch({
-								url: '../../login/login'
-							});
-						}
-						uni.showToast({
-							icon: 'none',
-							title: res.data.msg
-						});
-					}
-				});
-			},
 			back() {
 				uni.navigateBack({
 					delta: 1
 				});
 			},
+			// 获取矿机列表
 			getList() {
 				let sendData = {
 					token: uni.getStorageSync('token'),
@@ -259,8 +137,6 @@
 					success: res => {
 						console.log(res.data);
 						if (res.data.code == 200) {
-							// console.log('返回数据:' + JSON.stringify(res));
-							
 							this.kuangjiList = res.data.data;
 							console.log('矿机列表',this.kuangjiList)
 							this.get_grabBag(0);
@@ -287,11 +163,6 @@
 				this.sel = index;
 				this.laiid = this.kuangjiList[index].id;
 				this.qian = this.kuangjiList[index].name + '-' + this.kuangjiList[index].grade;
-			},
-			kanmingxi() {
-				uni.navigateTo({
-					url: './shouyimingxi'
-				});
 			},
 			loadOrder: function() {
 				uni.request({
@@ -321,16 +192,13 @@
 			},
 			quxiay(item, index) {
 				if (item.state == 0) {
-					// if(index){
 					this.get_grabBag(index);
-					// s}
 					if (this.zhimi == false) {
 						uni.showModal({
 							title: '系统提示',
 							content: '请绑定支付密码',
 							showCancel: false,
 							success: function(res) {
-								//console.log(res);
 								if (res.confirm) {
 									uni.navigateTo({
 										url: '../../wo/SafetyCenter/updatezhifu'
@@ -340,7 +208,6 @@
 						});
 						return false;
 					}
-
 					this.show3 = true;
 				} else {
 					uni.showToast({
@@ -354,10 +221,6 @@
 					this.myAlert('没有获取到矿机');
 					return false;
 				}
-				// if (this.shu == '') {
-				// 	this.myAlert('请输入USDT数量')
-				// 	return false
-				// }
 				if (this.mima == '') {
 					this.myAlert('请输入密码');
 					return false;
@@ -454,133 +317,6 @@
 				// uni.navigateTo({
 				// 	url: '../order-list'
 				// });
-			},
-			getupdate() {
-				var This = this;
-				plus.runtime.getProperty(plus.runtime.appid, function(widgetInfo) {
-					console.log(JSON.stringify(widgetInfo));
-					var server = This.webUrl + '/api/check/update'; //检查更新地址
-					var shebei;
-					uni.getSystemInfo({
-						success: function(res) {
-							shebei = res.platform;
-							console.log(res.platform);
-						}
-					});
-					var req = {
-						//升级检测数据
-						version: widgetInfo.version
-					};
-					console.log(req);
-					uni.request({
-						url: This.webUrl + '/api/check/update',
-						dataType: 'json',
-						method: 'POST',
-						data: req,
-						header: {
-							'content-type': 'application/x-www-form-urlencoded',
-							'Accept-Language': 'zh' //自定义请求头信息
-						},
-						success: res => {
-							console.log(JSON.stringify(res));
-
-							if (res.data.status == 1000 && res.data.data.status === 1) {
-								// console.log(JSON.stringify(res))
-								uni.showModal({
-									title: '更新提示',
-									content: res.data.data.information,
-									showCancel: true,
-									success(ress) {
-										console.log(res.data.data.url);
-
-										if (ress.confirm) {
-											console.log('用户点击确定');
-											if (res.data.data.url.substring(res.data.data.url.length - 3) == 'wgt') {
-												var dtask = plus.downloader.createDownload(
-													res.data.data.url, {
-														//拿到下载任务的对象
-														filename: '_doc/update/'
-													},
-													function(d, status) {
-														plus.nativeUI.closeWaiting();
-														if (status == 200) {
-															//在回调中根据状态 进行操作
-															var path = d.filename;
-															This.installWgt(path);
-														} else {
-															uni.showToast({
-																title: '配置出错,请检查网络链接！',
-																duration: 2000
-															});
-														}
-													}
-												);
-
-												dtask.start();
-
-												dtask.addEventListener('statechanged', function(task, status) {
-													console.log(task.state);
-													switch (task.state) {
-														case 1:
-															console.log('正在下载');
-															break;
-														case 2:
-															console.log('已连接到服务器');
-															break;
-														case 3:
-															This.jdt = parseInt((parseFloat(task.downloadedSize) / parseFloat(task.totalSize)) * 100);
-															if (This.jdt % 10 == 0) {
-																// console.log("　　 已下载" + prg + "%　　 ");
-																if (This.jdt == 100) {
-																	This.loading_status = false;
-																} else {
-																	This.loading_status = true;
-																}
-																console.log('　　 已下载' + This.jdt + '%　　 ');
-																break;
-															}
-
-														case 4:
-															plus.nativeUI.closeWaiting();
-															break;
-													}
-												});
-											} else {
-												plus.runtime.openURL(res.data.data.url);
-												// #ifdef APP-PLUS
-												plus.runtime.quit();
-												// #endif
-											}
-										} else if (ress.cancel) {
-											// #ifdef APP-PLUS
-											plus.runtime.quit();
-											// #endif
-											console.log('用户点击取消');
-										}
-									}
-								});
-							}
-						}
-					});
-				});
-			},
-			installWgt(path) {
-				plus.nativeUI.showWaiting('更新中...');
-				plus.runtime.install(
-					path, {},
-					function() {
-						plus.nativeUI.closeWaiting();
-						console.log('安装wgt文件成功！');
-						plus.nativeUI.alert('应用更新完成！', function() {
-							plus.runtime.restart();
-						});
-					},
-					function(e) {
-						plus.nativeUI.closeWaiting();
-						console.log('安裝wgt文件失败[' + e.code + ']：' + e.message);
-						plus.nativeUI.alert('更新失败[' + e.code + ']：' + e.message);
-					}
-				);
 			}
 		}
 	};
