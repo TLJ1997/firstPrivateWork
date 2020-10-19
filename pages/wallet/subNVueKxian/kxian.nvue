@@ -1,0 +1,72 @@
+<template>
+	<div>
+			<!-- <div class="left_muen_maks"></div> -->
+			<div class="left_muen_box">
+				<!-- 标题栏 -->
+				<div class="block">
+					<image src="../../../static/home/nav_icon_back_day.png" style="width: 55upx; height: 56upx; margin-left: 40upx;" mode="" @click="close()"></image>
+				</div>
+				<div class="block"> 
+						<div class="block_title_row"> 
+							<div class="block_title_icon"></div>
+							<text class="block_title">{{$t('wallet.ytj')}}d</text>
+						</div>
+						<div class="block_list">
+							<div class="block_list_item">
+								<text class="block_list_item_txt">TNL</text>
+								<image src="/static/wallet/icon_delete.png" class="block_list_item_icon" v-if="isedit">								
+							</div>
+						</div>
+				</div>
+				
+			</div>
+		</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				isedit:false,
+				hb_status:false,
+				statusBarH:80,
+				list:['a','b','c','d','e'],
+				select_list:[]
+			}
+		},
+		methods: {
+			edit(){
+				this.isedit=!this.isedit;
+				
+			},
+			editicon(){
+				
+			},
+			close(){
+				// const subNVue = uni.getCurrentSubNVue();
+
+				// subNVue.hide('pop-out',200);
+			}
+		}
+	}
+</script>
+
+<style>
+	
+	.left_muen_box{position: fixed;top: 0; padding-top:20upx; left: 0;width: 750upx;height: 1500upx;z-index: 999999999999999999999999999999999;background-color: #fff;;}
+	.back_btn{padding-top: 65upx;justify-content:flex-start;padding-left: 40upx;width: 38upx;height: 36upx;}
+	
+	.title_row{flex-direction: row;justify-content:space-between;align-items:flex-end;padding-left: 40upx;padding-right: 40upx;}
+	.title{padding-top: 45upx;padding-right: 20upx; font-size:48upx;font-weight:600;color:#242933;}
+	.title_btn{background-color:#fff;border-width: 2upx; border-style: solid;border-color: #3A74FC;border-radius:50upx;font-size: 28upx;text-align: center;width: 120upx;height: 58upx;line-height: 58upx;align-items:flex-end;color: #3A74FC;}
+
+	.block{margin-top: 50upx;}
+	.block_title_row{flex-direction: row;}
+	.block_title_icon{width:6upx;height:26upx;background-color:#242933;margin-right: 40upx;}
+	.block_title{font-size:28upx;font-weight:400;color:#242933;}
+	.block_list{flex-direction: row;margin-left: 40upx;margin-right: 40upx;margin-top: 40upx;margin-bottom: 40upx;justify-content: flex-start;flex-wrap: wrap;}
+	.block_list_item{width:180upx;height:70upx; align-items: flex-end;margin-right: 5upx;margin-bottom: 20upx;}
+	.block_list_item_txt{font-size:22upx;font-weight:400;color:#8792A8;text-align: center;line-height:60upx;width:160upx;height:60upx;background-color:#C0C4CC;border-radius:30upx;opacity: 0.7;margin-top: 10upx;}
+	.block_list_item_icon{width: 30upx;height: 30upx;right: 0upx;top: 0upx; position: absolute;}
+
+</style>

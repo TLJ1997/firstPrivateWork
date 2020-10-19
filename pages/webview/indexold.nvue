@@ -1,0 +1,1101 @@
+<template>
+	<scroller class="scroller">
+		<view class="content">
+			<!-- <view class="bi-box">
+				<view class="action-item">
+					<text class="action-title">币种：</text>
+					<text class="action-cell" :class="{ choose_text: symbol == 'ethusdt' }" @click="changeToSymbol(false, 'ethusdt')">ETH</text>
+					<text class="action-cell" :class="{ choose_text: symbol == 'btcusdt' }" @click="changeToSymbol(true, 'btcusdt')">BTC</text>
+					<text class="action-cell" :class="{ choose_text: symbol == 'eosusdt' }" @click="changeToSymbol(true, 'eosusdt')">EOS</text>
+				</view>
+			</view> -->
+			<!-- 信息区域 -->
+			<view style="flex-direction: row;justify-content: flex-start;width: 700rpx;padding: 0 30rpx;" @click="swtichLefMenu">
+				<image style="width:50rpx;height:50rpx;color: white;" src="../../static/expand.png"></image>
+				<text style="color: white;">{{ dataParam.tradingPair }}</text>
+			</view>
+			<view class="info-box">
+				<!-- 实时价格 -->
+				<view class="info-item info-price">
+					<text class="info-price-price" :class="parseFloat(trades.detail.increase)>0? 'info-price-increase-add':'info-price-increase-cut'">{{trades.detail.currentPrice}}</text>
+					<view class="info-price-rmb-increase">
+						<text class="info-price-rmb">≈{{trades.detail.cnyPrice}}</text>
+						<text class="info-price-increase" :class="parseFloat(trades.detail.increase)>0? 'info-price-increase-add':'info-price-increase-cut'">{{trades.detail.increase}}%</text>
+					</view>
+				</view>
+				<!-- 高，低，24H -->
+				<view class="info-item info-static" style="color: #007AFF;">
+					<view class="info-static-item">
+						<text class="info-static-item-label">高</text>
+						<text class="info-static-item-count">{{trades.detail.high}}</text>
+					</view>
+					<view class="info-static-item">
+						<text class="info-static-item-label">低</text>
+						<text class="info-static-item-count">{{trades.detail.low}}</text>
+					</view>
+					<view class="info-static-item">
+						<text class="info-static-item-label">24H</text>
+						<text class="info-static-item-count">{{trades.detail.familySize}}</text>
+					</view>
+				</view>
+			</view>
+			<view class="action-item">
+				<!-- <text class="action-title">时间：</text> -->
+				<text class="action-cell" :class="{ choose_text: dataParam.cycle == 'MIN1' }" @click="changeToLine('MIN1')">1分</text>
+				<text class="action-cell" :class="{ choose_text: dataParam.cycle == 'MIN5' }" @click="changeToLine('MIN5')">5分</text>
+				<text class="action-cell" :class="{ choose_text: dataParam.cycle == 'MIN15' }" @click="changeToLine('MIN15')">15分</text>
+				<text class="action-cell" :class="{ choose_text: dataParam.cycle == 'MIN30' }" @click="changeToLine('MIN30')">30分</text>
+				<text class="action-cell" :class="{ choose_text: dataParam.cycle == 'HOU1' }" @click="changeToLine('HOU1')">1时</text>
+				<text class="action-cell" :class="{ choose_text: dataParam.cycle == 'HOU4' }" @click="changeToLine('HOU4')">4时</text>
+				<view class="action-cell action-more" @click="showMenu = !showMenu">
+					<text style="color: #ffffff;font-size: 28rpx;">更多</text>
+					<text style="color: #ffffff;font-size: 28rpx;">{{ showMenu ? '▲' : '▼' }}</text>
+				</view>
+			</view>
+			<view class="action-box" v-if="showMenu">
+				<view class="action-item">
+					<text class="action-cell" :class="{ choose_text: dataParam.cycle == 'DAY1' }" @click="changeToLine('DAY1')">日线</text>
+					<text class="action-cell" :class="{ choose_text: dataParam.cycle == 'WEE1' }" @click="changeToLine('WEE1')">1周</text>
+					<text class="action-cell" :class="{ choose_text: dataParam.cycle == 'MON1' }" @click="changeToLine('MON1')">月线</text>
+				</view>
+				<view class="action-item">
+					<!-- <text class="action-title">主图：</text> -->
+					<text class="action-cell" :class="{ choose_text: mainType == 0 }" @click="changeMainType(0)">MA</text>
+					<text class="action-cell" :class="{ choose_text: mainType == 1 }" @click="changeMainType(1)">BOLL</text>
+					<text class="action-cell" :class="{ choose_text: mainType == -1 }" @click="changeMainType(-1)">隐藏</text>
+				</view>
+				<view class="action-item">
+					<!-- <text class="action-title">副图：</text> -->
+					<text class="action-cell" :class="{ choose_text: childType == 0 }" @click="changeChildType(0)">MACD</text>
+					<text class="action-cell" :class="{ choose_text: childType == 1 }" @click="changeChildType(1)">KDJ</text>
+					<text class="action-cell" :class="{ choose_text: childType == 2 }" @click="changeChildType(2)">RSI</text>
+					<text class="action-cell" :class="{ choose_text: childType == 3 }" @click="changeChildType(3)">WR</text>
+					<text class="action-cell" :class="{ choose_text: childType == -1 }" @click="changeChildType(-1)">隐藏</text>
+					<fy-switch v-model="isLine" :size="40" activeText="分时" inactiveText="K线"></fy-switch>
+				</view>
+				<!-- <view class="action-item">
+					<text class="action-title">图表：</text>
+					<text class="action-cell" :class="{ choose_text: false }" @click="toEcharts()">折线</text>
+					<text class="action-cell" :class="{ choose_text: false }" @click="toEcharts1()">深度</text>
+				</view> -->
+				<!-- <view class="switch-item">
+					<fy-switch :size="40" activeText="主题2" inactiveText="主题1" @change="changeTheme"></fy-switch>
+					<fy-switch v-model="lang" :size="40" activeText="中文" inactiveText="英文" activeValue="zh" inactiveValue="en"></fy-switch>
+					<fy-switch v-model="isLine" :size="40" activeText="分时" inactiveText="K线"></fy-switch>
+					<fy-switch v-model="IsRightPadding" :size="40" activeText="框外" inactiveText="框内"></fy-switch>
+					<fy-switch v-model="showDashLine" :size="40" activeText="有虚线" inactiveText="无虚线"></fy-switch>
+				</view> -->
+			</view>
+			<!-- #ifdef APP-PLUS -->
+			<fy-kline
+				ref="fyKLine"
+				:lang="lang"
+				:MaxCount="maxCount"
+				:IsLine="isLine"
+				:MainType="mainType"
+				:ChildType="childType"
+				:is-right-padding="!IsRightPadding"
+				:show-dash-line="showDashLine"
+				:is-can-roll="true"
+				@onLoadHistory="onLoadHistory"
+				:style="'width:750rpx;background-color: #171a29; height:' + klineHeight"
+			></fy-kline>
+			<!-- #endif -->
+
+			<!-- 切换 -->
+			<view class="tab-menu">
+				<text class="tab-menu-item" :class="{'tab-menu-item-active': menuItemsCurrent == index }" v-for="(item, index) in menuItems" :key="index" @click="tabSwitchMenu(index)">{{ item }}</text>
+			</view>
+			<view class="tab-content">
+				<!-- 委托挂单 -->
+				<view v-if="menuItemsCurrent == 0">
+					<view class="guandan-title">
+						<text class="guandan-title-item">买盘</text>
+						<text class="guandan-title-item" style="margin-right: 65rpx;">数量(BTC)</text>
+						<text class="guandan-title-item guandan-title-item-price">价格(USDT)</text>
+						<text class="guandan-title-item" style="margin-left: 65rpx;">数量(BTC)</text>
+						<text class="guandan-title-item">卖盘</text>
+					</view>
+					<view class="guadan-content">
+						<view class="guadan-content-list guadan-content-list-left">
+							<view class="guadan-content-list-item guadan-content-bg-buy" v-for="(item, index) in trades.detail.buys" :key="index">
+								<view class="guadan-item-bg-buy" :style="{'width':(((item.totalNum-item.remainingNum)/item.totalNum)*375*0.5+'rpx')}"></view>
+								<text class="guadan-item guadan-item-num">{{ index + 1 }}</text>
+								<text class="guadan-item guadan-item-count">{{item.remainingNum}}</text>
+								<text class="guadan-item guadan-item-prize-left">{{item.price}}</text>
+							</view>
+						</view>
+						<view class="guadan-content-list guadan-content-list-right">
+							<view class="guadan-content-list-item guadan-content-bg-sell" v-for="(item, index) in  trades.detail.sells" :key="index">
+								<view class="guadan-item-bg-sell" :style="{'width':((item.remainingNum/item.totalNum)*375 + 'rpx')}"></view>
+								<text class="guadan-item guadan-item-prize-right">{{item.price}}</text>
+								<text class="guadan-item guadan-item-count">{{item.remainingNum}}</text>
+								<text class="guadan-item guadan-item-num">{{ index + 1 }}</text>
+							</view>
+						</view>
+					</view>
+				</view>
+				<!-- 成交 -->
+				<view v-if="menuItemsCurrent == 1">
+					<view class="chengjiao-title">
+						<text class="chengjiao-title-item">时间</text>
+						<text class="chengjiao-title-item" style="margin-left:155rpx;">方向</text>
+						<text class="chengjiao-title-item">价格(USDT)</text>
+						<text class="chengjiao-title-item">数量(BTC)</text>
+					</view>
+					<view class="chengjiao-content">
+						<view class="chengjiao-content-list-item" v-for="(item, index) in trades.detail.deals" :key="index">
+							<text style="width: 288rpx;" class="chengjiao-item">{{item.createDate}}</text>
+							<text style="width: 144rpx;" class="chengjiao-item chengjiao-item-direction-buy" :class="item.type=='buy'? 'info-price-increase-add':'info-price-increase-cut'">{{item.type=="buy"? "买入":"卖出"}}</text>
+							<text style="width: 144rpx;" class="chengjiao-item">{{item.closingPrice}}</text>
+							<text style="width: 144rpx;text-align: right;" class="chengjiao-item">{{item.closingNum}}</text>
+						</view>
+					</view>
+				</view>
+				<!-- 简介 -->
+				<view v-if="menuItemsCurrent == 2" class="profile-container">
+					<text class="profile-title">比特币(Bitcoin)</text>
+					<view class="profile-item">
+						<text class="profile-item-lable">发行时间</text>
+						<text class="profile-item-content">2008/11/1</text>
+					</view>
+					<view class="profile-item">
+						<text class="profile-item-lable">发行总量</text>
+						<text class="profile-item-content">21000000</text>
+					</view>
+					<view class="profile-item">
+						<text class="profile-item-lable">流通总理</text>
+						<text class="profile-item-content">18374575</text>
+					</view>
+					<view class="profile-item">
+						<text class="profile-item-lable">众筹价格</text>
+						<text class="profile-item-content">--</text>
+					</view>
+					<view class="profile-item">
+						<text class="profile-item-lable">白皮书</text>
+						<text class="profile-item-content">https://bitcoin.org/bitcoint.pdf</text>
+					</view>
+					<view class="profile-item">
+						<text class="profile-item-lable">官网</text>
+						<text class="profile-item-content">https://bitcoin.org/en/</text>
+					</view>
+					<view class="profile-item">
+						<text class="profile-item-lable">区块查询</text>
+						<text class="profile-item-content">https://blockchina.info/</text>
+					</view>
+					<view class="profile-content"></view>
+				</view>
+			</view>
+
+			<view class="menu-bottom">
+				<view class="menu-bottom-buy-item" @click="gotoTrade"><text class="menu-bottom-item">买入</text></view>
+				<view class="menu-bottom-sell-item" @click="gotoTrade"><text class="menu-bottom-item">卖出</text></view>
+			</view>
+			<view class="left-menu" :style="{ height: bodyHeight }" v-if="showLeftMenu">
+				<view class="left-menu-body">
+					<scroller class="left-menu-tab-scroller" scroll-direction="horizontal">
+						<text class="symbol-item" v-for="(item, index) in symbolTypes.list" :key="index" @click="selectSymbolTypes(index)" :class="{ choose_text: index == symbolTypes.current }"> {{ item.label }} </text>
+					</scroller>
+					<!-- <input class="search-box" type="text" value="" placeholder="搜索币种" return-key-type="search" @input="searchSymbol" /> -->
+					<list :scrollable="true" :pagingEnabled="true" :style="{ height: listHeight }">
+						<cell class="symbol-list-item" v-for="(item, index) in symbols.list" :key="index" @click="changeSymbol(item.tradingPair)">
+							<text class="symbol-item-name">{{ item.tradingPair }}</text>
+							<text class="symbol-item-price">{{ item.price }}</text>
+						</cell>
+					</list>
+				</view>
+			</view>
+		</view>
+	</scroller>
+</template>
+
+<script>
+// var moment = require('moment');
+var upDataTime;
+// import init_data from '@/static/init_data.json';
+// import history_data from '@/static/history_data.json';
+export default {
+	data() {
+		return {
+			showLeftMenu: false,
+			showMenu: false, //是否显示菜单
+			lang: 'zh', // 默认中文，非‘zh’字符串一律为英文
+			maxCount: 1000, // 默认最多显示1000条数据
+			isLine: false, // 默认为K线
+			isTime: 'MIN1',
+			mainType: 0, // 主指标默认MA
+			childType: 0, // 副指标默认MACD
+			klineHeight: 0,
+			IsRightPadding: false, // 右边刻度在K线图之外
+			latestData: '',
+			showDashLine: true,
+			mapDataCollection: [],
+			theme1: {
+				chart_background: '#181B2C',
+				chart_up: '#d72c4c', // 上涨K柱颜色
+				chart_down: '#02ac8f', // 下跌K柱颜色
+				chart_line: '#c9933e', // 分时线颜色
+				chart_line_background: '#1ac9933e', // 分时线背景色，前两项'1a'表示透明度
+				chart_point_background: '#202326', // 长按弹出的光标末端点数和日期游标背景色
+				chart_point_text: '#818596', // 长按弹出的光标末端点数和日期游标文本颜色
+				chart_selected_yline: '#8040424d', // 十字光标选择器竖线颜色
+				chart_selected_xline: '#ffffff', // 十字光标选择器横线颜色
+				chart_grid_line: '#1affffff', // 网格线颜色
+				chart_dotted_line: '#d72c4c', // 收盘虚线颜色
+				chart_selector_background: '#202326', // 长按弹出的高低开收详情弹框背景颜色
+				chart_selector_text: '#818596', // 长按弹出的高低开收详情弹框文本颜色
+				chart_ma: {
+					// 主图，vol图的ma线和文本的颜色
+					ma5: '#da8ae5',
+					ma10: '#39b0e8',
+					ma30: '#ffc76d',
+					ma60: '#39b0e8' // 分时模式时会显示ma60指标，K线图模式显示 ma5、ma10、ma30三个指标
+				},
+				chart_boll: {
+					// 主图BOLL指标下的三轨线文本和线的颜色
+					boll: '#39b0e8', // boll,中轨线
+					ub: '#da8ae5', // ub，上轨线
+					lb: '#ffc76d' // lb，下轨线
+				},
+				chart_macd: {
+					// 副图MACD指标下的MACD,DIF,DEA三个指标线和文本的颜色
+					macd: '#39b0e8',
+					dif: '#da8ae5',
+					dea: '#ffc76d'
+				},
+				chart_kdj: {
+					// 副图KDJ指标下的K,D,J三个指标线和文本的颜色
+					k: '#39b0e8',
+					d: '#da8ae5',
+					j: '#ffc76d'
+				},
+				chart_rsi: '#da8ae5', // 副图RSI指标线和文本的颜色
+				chart_wr: '#da8ae5', // 副图WR指标线和文本的颜色
+				chart_m_text: '#ffffff', // 最大/最小 值文本颜色
+				chart_scale_text: '#818596', // 刻度值文本颜色
+				chart_vol_text: '#818596', // vol图的 "VOL:XXXXXX" 文本的颜色
+				chart_child_text: '#818596' // 副图的指标名字文本颜色，例如副图MACD时，"MACD(12,26,9)" 文本的颜色
+			},
+			theme2: {
+				chart_background: '#ffffff',
+				chart_up: '#02ac8f', // 上涨K柱颜色
+				chart_down: '#d72c4c', // 下跌K柱颜色
+				chart_line: '#c9933e', // 分时线颜色
+				chart_line_background: '#1ac9933e', // 分时线背景色，前两项'1a'表示透明度
+				chart_point_background: '#202326', // 长按弹出的光标末端点数和日期游标背景色
+				chart_point_text: '#818596', // 长按弹出的光标末端点数和日期游标文本颜色
+				chart_selected_yline: '#80a01aff', // 十字光标选择器竖线颜色
+				chart_selected_xline: '#a01aff', // 十字光标选择器横线颜色
+				chart_grid_line: '#1a202326', // 网格线颜色
+				chart_dotted_line: '#02ac8f', // 收盘虚线颜色
+				chart_selector_background: '#202326', // 长按弹出的高低开收详情弹框背景颜色
+				chart_selector_text: '#818596', // 长按弹出的高低开收详情弹框文本颜色
+				chart_ma: {
+					// 主图，vol图的ma线和文本的颜色
+					ma5: '#ffc76d',
+					ma10: '#02ac8f',
+					ma30: '#da8ae5',
+					ma60: '#02ac8f' // 分时模式时会显示ma60指标，K线图模式显示 ma5、ma10、ma30三个指标
+				},
+				chart_boll: {
+					// 主图BOLL指标下的三轨线文本和线的颜色
+					boll: '#02ac8f', // boll,中轨线
+					ub: '#ffc76d', // ub，上轨线
+					lb: '#da8ae5' // lb，下轨线
+				},
+				chart_macd: {
+					// 副图MACD指标下的MACD,DIF,DEA三个指标线和文本的颜色
+					macd: '#ffc76d',
+					dif: '#39b0e8',
+					dea: '#da8ae5'
+				},
+				chart_kdj: {
+					// 副图KDJ指标下的K,D,J三个指标线和文本的颜色
+					k: '#da8ae5',
+					d: '#39b0e8',
+					j: '#ffc76d'
+				},
+				chart_rsi: '#da8ae5', // 副图RSI指标线和文本的颜色
+				chart_wr: '#da8ae5', // 副图WR指标线和文本的颜色
+				chart_m_text: '#ff0000', // 最大/最小 值文本颜色
+				chart_scale_text: '#179600', // 刻度值文本颜色
+				chart_vol_text: '#3e1aaa', // vol图的 "VOL:XXXXXX" 文本的颜色
+				chart_child_text: '#3e1aaa' // 副图的指标名字文本颜色，例如副图MACD时，"MACD(12,26,9)" 文本的颜色
+			},
+			fromUrl: 'realTimeData',
+			symbol: 'ethusdt',
+			serverUrl: 'http://btpbks.niukeying.cn',
+			serverSocket: 'btpbks.niukeying.cn',
+			websiteUrlbibi: 'http://42.194.218.215:9999/',
+			pages: 1,
+			pagesNumber: 100,
+			fromData: {
+				typeName: 'HistoricalKLine',
+				symbol: 'ethusdt',
+				number: 0,
+				pages: 1,
+				pagesNumber: 100
+			},
+			menuItems: ['委托挂单', '成交'],
+			menuItemsCurrent: 0,
+			bodyHeight: 0,
+			listHeight: 0,
+			dataParam: {
+				tradingPair: 'YK/USDT',
+				cycle: 'MIN1',
+				page: 1,
+				type: 0
+			},
+			/* 币种类型 */
+			symbolTypes: {
+				list: [],
+				current: 0
+			},
+			/* 币种列表 */
+			symbols: {
+				zixuanParam: {},
+				zixuanlist: [],
+				list: []
+			},
+			trades:{
+				info:{},
+				detail:{}
+			},
+			timer:'',
+		};
+	},
+	onLoad() {
+		this.klineHeight = (uni.getSystemInfoSync().windowHeight * 3) / 4 - uni.upx2px(200) + 'px';
+		this.bodyHeight = uni.getSystemInfoSync().windowHeight + 'px';
+		this.listHeight = uni.getSystemInfoSync().windowHeight - 100 + 'px';
+	},
+	onReady() {
+		this.initData();
+		this.loadUpdata();
+		this.connetSocket();
+	},
+	onUnload() {
+		clearInterval(upDataTime);
+		if (this.timer != null) {
+			clearInterval(this.timer);
+			this.timer = null;
+			uni.closeSocket();
+		}
+	},
+	onShow() {
+		this.initData();
+		this.GetBaseSymbolList();
+		this.GetOptionalList();
+	},
+	methods: {
+		/* 跳转至交易界面 */
+		gotoTrade(){
+			uni.switchTab({
+				url:'../trade/trade'
+			})
+		},
+		connetSocket() {
+			let This = this;
+			let url = 'ws://'+This.serverSocket+'/socket';
+			console.log("url:"+url);
+			uni.connectSocket({
+				url: url,
+				header: {
+					'content-type': 'application/json'
+				},
+				success: function(res) {
+					console.log(res);
+				}
+			});
+			uni.onSocketOpen(function(res) {
+				console.log('WebSocket连接已打开！');
+			});
+			This.timer = setInterval(function() {
+				let message = {
+					tradingPair:This.dataParam.tradingPair,
+					cycle:This.dataParam.cycle,
+					type:This.menuItemsCurrent
+				}
+				uni.sendSocketMessage({
+					data: JSON.stringify(message)
+				});
+				uni.onSocketMessage(function(res) {
+					// console.log(res)
+					if (res.data == 'hello') {
+					} else {
+						let SocketData = res.data;
+						This.trades.detail = JSON.parse(SocketData);
+						
+						This.trades.detail.kline.vol = This.trades.detail.kline.volume;
+						delete This.trades.detail.kline.volume;
+						
+						console.log("SocketData:"+JSON.stringify(This.trades.detail.kline));
+						This.latestData = This.trades.detail.kline;
+						// console.log("SocketData.high:"+SocketData);
+						// console.log(JSON.parse(res.data))
+						// This.buys = This.xiaoxibuy.buys;
+						// This.sells = This.xiaoxibuy.sells;
+					}
+				});
+			}, 1000);
+		},
+		swtichLefMenu() {
+			this.showLeftMenu = !this.showLeftMenu;
+		},
+		searchSymbol(obj) {
+			console.log('搜索币种:' + obj.detail.value);
+			this.suoyinlist(obj.detail.value);
+		},
+		GetOptionalList() {
+			let _this = this;
+			var zixuanlist = {
+				token: uni.getStorageSync('token'),
+				userId: uni.getStorageSync('id'),
+				page: 1
+			};
+			console.log(zixuanlist);
+			uni.request({
+				url: this.websiteUrlbibi + 'api/optionalTradingPair', //仅为示例，并非真实接口地址。
+				data: zixuanlist,
+				header: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				method: 'GET',
+				success: res => {
+					// console.log(res.data);
+					if (res.data.code == 200) {
+						_this.symbols.list = res.data.data.optionals;
+					} else if (res.data.code == 500) {
+						this.myAlert(res.data.msg);
+					} else if (res.data.code == 402) {
+						if (uni.getStorageSync('isOpenFingerprint') == 1 || uni.getStorageSync('isOpenGesture') == 1) {
+							console.log('开启了指纹手势可以验证登录');
+							uni.reLaunch({
+								url: '../indexzhiwen/indexzhiwen'
+							});
+						} else {
+							console.log('没开启指纹手势去登录');
+							uni.reLaunch({
+								url: '../login/login'
+							});
+						}
+					}
+				},
+				complete(res) {
+					console.log("complete:"+JSON.stringify(res))
+				}
+			});
+			if (_this.symbols.list.length > 0) {
+				// this.dataParam.tradingPair = _this.symbols.list[0];
+			}
+		},
+		GetBaseSymbolList() {
+			let _this = this;
+			uni.request({
+				url: this.websiteUrlbibi + 'api/getBaseSymbolList', //仅为示例，并非真实接口地址。
+				data: {},
+				header: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				method: 'GET',
+				success: res => {
+					// console.log('币种类型列表:' + JSON.stringify(res));
+					_this.symbolTypes.list = res.data.data;
+				}
+			});
+		},
+		suoyinlist(bizhong) {
+			this.dataParam.tradingPair = bizhong;
+			let _this = this;
+			uni.request({
+				url: this.websiteUrlbibi + 'api/getTradingPairList', //仅为示例，并非真实接口地址。
+				data: {
+					baseSymbol: bizhong
+				},
+				header: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				method: 'GET',
+				success: res => {
+					console.log(JSON.stringify(res.data));
+					if (res.data.code == 200) {
+						_this.symbols.list = res.data.data;
+					} else if (res.data.code == 500) {
+						this.myAlert(res.data.msg);
+					} else if (res.data.code == 402) {
+						if (uni.getStorageSync('isOpenFingerprint') == 1 || uni.getStorageSync('isOpenGesture') == 1) {
+							console.log('开启了指纹手势可以验证登录');
+							uni.reLaunch({
+								url: '../../pages/indexzhiwen/indexzhiwen'
+							});
+						} else {
+							console.log('没开启指纹手势去登录');
+							uni.reLaunch({
+								url: '../../pages/login/login'
+							});
+						}
+					}
+				}
+			});
+		},
+		/* 切换币种类型 */
+		selectSymbolTypes(index) {
+			if (index == 0) {
+				console.log('这是自选');
+				this.GetOptionalList();
+			} else {
+				this.suoyinlist(this.symbolTypes.list[index].label);
+			}
+			// this.zixuanlist();
+			// this.GetSymbolList();
+			this.symbolTypes.current = index;
+		},
+		loadMore() {
+			console.log('加载更多');
+		},
+		/* 切换币种K线 */
+		changeSymbol(tradingPair) {
+			this.showLeftMenu = !this.showLeftMenu;
+
+			this.dataParam.tradingPair = tradingPair;
+			this.dataParam.page = 1;
+			this.startMin();
+		},
+		tabSwitchMenu(index) {
+			this.menuItemsCurrent = index;
+		},
+		/* 切换时间线 */
+		changeToLine(cycle) {
+			this.dataParam.cycle = cycle;
+			this.dataParam.page = 1;
+			this.startMin();
+			// if (this.dataParam.cycle == 'MIN1') {
+			// 	this.startMin1();
+			// } else {
+			// 	this.startOtherMin();
+			// }
+		},
+		changeToSymbol(isTime, symbol) {
+			this.symbol = symbol;
+			this.pages = 1;
+			if (this.isTime == 'MIN1') {
+				this.startMin1();
+			} else {
+				this.startOtherMin();
+			}
+		},
+		startMin() {
+			clearInterval(upDataTime);
+			this.initData();
+			this.loadUpdata();
+		},
+		startMin1() {
+			this.initData();
+			this.loadUpdata();
+		},
+		startOtherMin() {
+			clearInterval(upDataTime);
+			this.initData();
+		},
+		initData() {
+			let _this = this;
+			if (this.$refs.fyKLine) {
+				this.$refs.fyKLine.loading();
+			}
+			// 请求数据，加载数据。
+			// console.log('初始数据参数:' + JSON.stringify(this.dataParam));
+			uni.request({
+				url: this.serverUrl + '/api/historicalData',
+				method: 'GET',
+				data: this.dataParam,
+				header: {
+					'content-type': 'application/x-www-form-urlencoded'
+				},
+				success: res => {
+					if (_this.$refs.fyKLine) {
+						
+						res.data.data.map(item=>{
+							item.vol = item.volume;
+							delete item.volume;
+						})
+						console.log('初始数据返回', JSON.stringify(res.data));
+						// _this.mapDataCollection = res.data.data;
+						_this.$refs.fyKLine.initData(res.data.data);
+					}
+				},
+				fail: res => {
+					console.log(res);
+				}
+			});
+		},
+		loadUpdata() {
+		},
+		onLoadHistory(e) {
+			// console.log('最左侧数据日期', e.detail.date);
+			console.log('最左侧数据日期', e);
+			this.dataParam.page = this.dataParam.page + 1;
+			// 请求数据，加载数据。这里提取历史数据
+			// console.log('历史数据参数:' + JSON.stringify(this.dataParam));
+			let _this = this;
+			uni.request({
+				url: this.serverUrl + '/api/historicalData',
+				method: 'GET',
+				data: this.dataParam,
+				header: {
+					'content-type': 'application/x-www-form-urlencoded'
+				},
+				success: res => {
+					if (_this.$refs.fyKLine) {
+						res.data.data.map(item=>{
+							
+							item.vol = item.volume;
+							delete item.volume;
+						})
+						console.log('历史数据返回:' + JSON.stringify(res.data));
+						_this.$refs.fyKLine.loadHistory(res.data.data);
+					}
+				},
+				fail: res => {
+					console.log(res);
+				}
+			});
+		},
+		changeMainType(type) {
+			this.mainType = type;
+			this.$refs.fyKLine.changeMainType(type);
+		},
+		changeChildType(type) {
+			this.childType = type;
+			this.$refs.fyKLine.changeChildType(type);
+		},
+		changeMainLine(isLine) {
+			this.isLine = isLine;
+			this.$refs.fyKLine.changeMainLine(isLine);
+		},
+		changeTheme(e) {
+			if (this.$refs.fyKLine) {
+				if (e) {
+					this.$refs.fyKLine.changeTheme(this.theme2);
+				} else {
+					this.$refs.fyKLine.changeTheme(this.theme1);
+				}
+			}
+		}
+		// toEcharts() {
+		// 	uni.navigateTo({
+		// 		url: '../echarts/echarts'
+		// 	});
+		// },
+		// toEcharts1() {
+		// 	console.log('toEcharts1');
+		// 	uni.navigateTo({
+		// 		url: '../highcharts/highcharts?symbol=' + this.symbol
+		// 	});
+		// }
+	},
+	watch: {
+		// 加载新数据，一般是 socket更新一个变量，监听器深度监听该变量，然后把数据加载进K线图
+		// 此demo没有实现 socket连接
+		latestData: {
+			handler(newData, oldData) {
+				// console.log("更新k线oldData："+JSON.stringify(oldData));
+				// console.log("更新k线newData："+JSON.stringify(newData));
+				if(oldData&&oldData.id!=newData.id){
+				// if(newData){
+					console.log("开始更新了");
+					this.$refs.fyKLine.updateData(newData);
+				}
+			},
+			deep: true
+		},
+		isLine() {
+			if (this.$refs.fyKLine) {
+				this.$refs.fyKLine.changeMainLine(this.isLine);
+			}
+		},
+		isRightPadding() {
+			if (this.$refs.fyKLine) {
+				this.$refs.fyKLine.changeIsRightPadding(this.isRightPadding);
+			}
+		}
+	}
+};
+</script>
+
+<style>
+.symbol-list-item {
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	padding: 15rpx;
+	height: 100rpx;
+	line-height: 100rpx;
+	border-bottom-width: 1rpx;
+	border-style: solid;
+	border-color: #333;
+}
+.search-box {
+	font-size: 26rpx;
+	border-width: 1rpx;
+	border-style: solid;
+	border-color: #eee;
+	border-radius: 5rpx;
+	padding: 15rpx;
+	height: 60rpx;
+	line-height: 60rpx;
+	color: #fff;
+}
+.left-menu {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 500rpx;
+	z-index: 999;
+	background-color: #131e30;
+	/* opacity: 0.3; */
+}
+.left-menu-body {
+	width: 500rpx;
+	padding: 30rpx;
+	background-color: #131e30;
+}
+.left-menu-tab-scroller {
+	flex-direction: row;
+}
+.symbol-item {
+	padding: 15rpx;
+	color: #fff;
+	font-size: 32rpx;
+}
+.symbol-item-name {
+	color: #fff;
+	font-size: 32rpx;
+}
+.symbol-item-price {
+	color: red;
+	font-size: 32rpx;
+}
+.scroller {
+	width: 750rpx;
+	padding-bottom: 130rpx;
+}
+.content {
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-between;
+	position: relative;
+}
+.bi-box {
+	width: 750rpx;
+	height: 40rpx;
+	line-height: 40rpx;
+}
+/* 信息区 */
+.info-box {
+	/* position: sticky; */
+	height: 200rpx;
+	width: 750rpx;
+	padding: 0 20rpx;
+	background-color: #181b2c;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}
+.info-price {
+	height: 120rpx;
+	flex-direction: column;
+	justify-content: space-between;
+}
+.info-price-price {
+	color: #03ad8f;
+	font-size: 62rpx;
+	font-weight: bold;
+}
+.info-price-rmb-increase {
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}
+.info-price-rmb {
+	color: #6d87a8;
+	margin-right: 20rpx;
+	font-size: 28rpx;
+}
+.info-price-increase {
+	font-size: 28rpx;
+	font-weight: bold;
+}
+.info-price-increase-add{
+	color: #03ad8f;
+}
+.info-price-increase-cut{
+	color: #d14b64;
+}
+.info-static {
+	height: 120rpx;
+	flex-direction: column;
+	justify-content: space-between;
+}
+.info-static-item {
+	flex-direction: row;
+	justify-content: space-between;
+}
+.info-static-item-label {
+	font-size: 24rpx;
+	color: #6d87a8;
+}
+.info-static-item-count {
+	font-size: 24rpx;
+	color: #fff;
+	margin-left: 30rpx;
+}
+.action-box {
+	position: sticky;
+	/* top: 200rpx; */
+	/* left: 0; */
+	height: 200rpx;
+	width: 750rpx;
+	background-color: #181b2c;
+}
+
+.action-item {
+	flex: 1;
+	flex-direction: row;
+	align-items: center;
+	padding: 0 20rpx;
+	line-height: 40rpx;
+}
+.action-title {
+	margin-right: 20rpx;
+	color: #ffffff;
+	font-size: 28rpx;
+}
+
+.action-cell {
+	margin-right: 20rpx;
+	color: #ffffff;
+	font-size: 28rpx;
+	width: 80rpx;
+	text-align: center;
+}
+.action-more {
+	flex-direction: row;
+	align-items: center;
+}
+.choose_text {
+	color: #1d8aff;
+	/* border-bottom-width: 1rpx; */
+	/* border-style: solid; */
+	/* border-color: #1d8aff; */
+}
+
+.switch-item {
+	flex: 1;
+	flex-direction: row;
+	align-items: center;
+	/* justify-content: space-between; */
+	padding: 0 20rpx;
+}
+
+.switch-text {
+	color: #ffffff;
+	font-size: 28rpx;
+}
+
+.menu-bottom {
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	padding-left: 20rpx;
+	padding-right: 20rpx;
+	padding-top: 20rpx;
+	padding-bottom: 20rpx;
+	height: 130rpx;
+	width: 750rpx;
+	flex-direction: row;
+	justify-content: flex-start;
+	background-color: #181b2c;
+}
+.menu-bottom-buy-item {
+	border-radius: 10rpx;
+	background-color: #03ad8f;
+	margin-right: 15rpx;
+}
+.menu-bottom-sell-item {
+	border-radius: 10rpx;
+	background-color: #d14b64;
+}
+.menu-bottom-item {
+	width: 280rpx;
+	color: #fff;
+	font-size: 28rpx;
+	line-height: 90rpx;
+	text-align: center;
+}
+.tab-menu {
+	width: 750rpx;
+	padding: 0 20rpx;
+	flex-direction: row;
+	justify-content: space-around;
+	border-bottom-width: 2rpx;
+	border-style: solid;
+	border-color: #333;
+}
+.tab-menu-item {
+	height: 80rpx;
+	line-height: 80rpx;
+	color: #6d87a8;
+	font-size: 30rpx;
+	text-align: center;
+}
+.tab-menu-item-active {
+	color: #1d8aff;
+	border-bottom-width: 5rpx;
+	border-style: solid;
+	border-color: #1d8aff;
+}
+.tab-content {
+}
+/* 委托挂单 */
+.guandan-title {
+	width: 750rpx;
+	padding: 0 20rpx;
+	flex-direction: row;
+	justify-content: space-between;
+}
+.guandan-title-item {
+	height: 80rpx;
+	line-height: 80rpx;
+	color: #6d87a8;
+	font-size: 22rpx;
+	text-align: center;
+}
+.guandan-title-item-price {
+}
+.guadan-content {
+	flex: 1;
+	flex-direction: row;
+}
+.guadan-content-list {
+	flex: 1;
+}
+.guadan-content-list-left {
+	padding-left: 20rpx;
+	padding-right: 10rpx;
+}
+.guadan-content-list-right {
+	padding-left: 10rpx;
+	padding-right: 20rpx;
+}
+.guadan-content-list-item {
+	flex-direction: row;
+	justify-content: space-between;
+	height: 60rpx;
+	line-height: 60rpx;
+	color: #fff;
+	position: relative;
+}
+.guadan-content-bg-buy {
+	background-color: #132a38;
+}
+.guadan-item-bg-buy {
+	position: absolute;
+	height: 100%;
+	background-color: #181b2c;
+}
+.guadan-content-bg-sell {
+	background-color: #181b2c;
+}
+.guadan-item-bg-sell {
+	position: absolute;
+	height: 100%;
+	background-color: #222335;
+}
+
+.guadan-item {
+	/* flex: 1; */
+}
+.guadan-item-num {
+	color: #6d87a8;
+	font-size: 22rpx;
+}
+.guadan-item-count {
+	color: #fff;
+	font-size: 22rpx;
+}
+.guadan-item-prize-left {
+	color: #03ad8f;
+	font-size: 22rpx;
+}
+.guadan-item-prize-right {
+	color: #d14b64;
+	font-size: 22rpx;
+}
+/* 成交 */
+.chengjiao-title {
+	width: 750rpx;
+	padding: 0 15rpx;
+	flex-direction: row;
+	justify-content: space-between;
+}
+.chengjiao-title-item {
+	height: 80rpx;
+	line-height: 80rpx;
+	color: #6d87a8;
+	font-size: 22rpx;
+	text-align: center;
+}
+.chengjiao-content-list-item {
+	width: 750rpx;
+	height: 60rpx;
+	flex-direction: row;
+	justify-content: space-between;
+	line-height: 60rpx;
+	padding: 0 15rpx;
+}
+.chengjiao-item {
+	color: #fff;
+	font-size: 22rpx;
+}
+.chengjiao-item-direction-buy {
+	color: #03ad8f;
+}
+.chengjiao-item-direction-sell {
+	color: #d14b64;
+}
+/* 简介 */
+.profile-container {
+	padding-left: 30rpx;
+	width: 750rpx;
+}
+.profile-title {
+	font-size: 42rpx;
+	color: #fff;
+	height: 150rpx;
+	line-height: 150rpx;
+	border-bottom-width: 1rpx;
+	border-color: #333333;
+	border-style: solid;
+}
+.profile-item {
+	font-size: 32rpx;
+	color: #fff;
+	height: 100rpx;
+	line-height: 100rpx;
+	padding-right: 30rpx;
+	border-bottom-width: 1rpx;
+	border-color: #333333;
+	border-style: solid;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}
+.profile-item-lable {
+	font-size: 32rpx;
+	color: #6d87a8;
+}
+.profile-item-content {
+	font-size: 32rpx;
+	color: #666;
+}
+</style>
