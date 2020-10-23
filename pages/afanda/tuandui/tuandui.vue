@@ -4,55 +4,58 @@
 			<view class="header_box hi-rows hi-flex-vcenter  hi-space-between">
 				<image src="../../../static/home/nav_icon_back_day.png" mode="" style="width:46upx;height: 46upx;" @click="exit_btn"></image>
 				<view style="font-size: 37upx;text-align: center;font-weight: bold;color:#000">{{$t('afanda.wdtd')}}</view>
-				<!-- <view style="font-size: 37upx;text-align: center;font-weight: bold;color:#ffffff"></view> -->
 			</view>
 		</view>
-		<view class="content hi-columns" :style="hb_status?'background:#F0F3F5;padding-top:'+header_H+'px;':'background:#05060F;padding-top:'+header_H+'px;'">
+		<view class="content hi-columns" :style="hb_status?'background:#FFF;padding-top:'+header_H+'px;':'background:#05060F;padding-top:'+header_H+'px;'">
 			<view class="set_text_title" :style="hb_status?'color:#000000':'color:#ffffff'"> </view>
 			<view style="width: 100%;padding: 30upx;box-sizing: border-box;">
-				<view style="position: relative;width: 100%;height:220upx;background-size: 100% 100%; align-items: center;border-radius: 30upx;"
-				 :style="{ backgroundImage: `url(${beijing})`}">
+				<view style="position: relative;width: 100%;height:320upx;background-size: 100% 100%; align-items: center;border-radius: 30upx;"
+				 :style="{ backgroundImage: `url(${beijing})`}" @tap="gotoMyTeam()">
 
-					<view @tap="gotoMyTeam()" style="width: 100%; align-items: center;padding-top:80upx;">
+					<!-- <view style="width: 100%; align-items: center;padding-top:80upx;">
 						<view class="user_text hi-columns" style="align-items: center;">
 							<text class="name" style="color:#ffffff;font-size: x-large;">{{$t('afanda.wdzt')}}</text>
-							<!-- <text class="userid" style="font-weight:bold;font-size:40upx;color: #FFF;margin-top: 20upx;">0.00</text> -->
 						</view>
-					</view>
+					</view> -->
 				</view>
 			</view>
-			<!-- <view style="width: 100%;background-color: #f5f5f5;height:120upx;position: relative;box-sizing: border-box;">
-				<view style="height: 120upx;background-color:#FFF;border-radius: 10upx;width:600upx;padding-top: 30upx; position: absolute;top:-50upx;left: 50%;margin-left: -300upx; display: inline-flex;">
-					<view class="user_text hi-columns" style="align-items: center;width: 49.4%;">
-						<text class="name" style="color:#000;font-weight:bold;font-size:30upx;">0.00</text>
-						<text class="userid" style="font-size:28upx;color: #000;margin-top: 10upx;">持币算力</text>
-					</view>
-					<view style="width: 1upx;height: 50upx;background-color: #009688; margin-top:20upx;"></view>
-					<view class="user_text hi-columns" style="align-items: center;width: 49.4%;">
-						<text class="name" style="color:#000;font-weight:bold;font-size:30upx;">0.00</text>
-						<text class="userid" style="font-size:28upx;color: #000;margin-top: 10upx;">推广算力</text>
-					</view>
-				</view>
-			</view> -->
 			<view style="width: 100%;padding:0 30upx;box-sizing: border-box;">
 				<view style="width: 100%;box-sizing: border-box;background-color: #FFF;border-radius: 30upx;overflow: hidden;padding-bottom: 30upx;">
 					<view style="width: 100%;background-color: #FFF;height: 80upx;padding: 0 30upx; box-sizing: border-box;display: inline-flex;">
 						<view style="width:50%;font-weight:bold;font-size:35upx;color: #000;line-height: 80upx;">{{$t('afanda.tdzl')}}</view>
 						<view style="width:50%; text-align: right;font-size: 30upx;color: #00B26A;line-height: 80upx;"></view>
 					</view>
-					<view style="width: 100%;">
-						<view style="width: 100%;height: 60upx;padding:30upx;box-sizing: border-box;display: inline-flex;">
-							<view style="width: 50%;font-size:30upx;color: #999;font-weight: bold; line-height: 60upx;">{{$t('afanda.ztrs')}} <text style="margin-left: 15upx;color: #000;">{{dataz.directNum || '0'}}</text></view>
+
+					<view style="width: 95%;margin-left: 2%;">
+						<view class="temItem">
+							<view class="temItemName">{{$t('afanda.ztrs')}}</view>
+							<view style="color: #FDB44B;">{{dataz.directNum || '0'}}</view>
+						</view>
+						<view class="temItem">
+							<view class="temItemName">{{$t('afanda.ysmrs')}}</view>
+							<view style="color: #FDB44B;">{{dataz.teamNum || '0'}}</view>
+						</view>
+						<view class="temItem">
+							<view class="temItemName">{{$t('afanda.zyj')}}</view>
+							<view style="color: #FDB44B;">{{dataz.per || '0'}}</view>
+						</view>
+						
+						
+						
+						<!-- <view style="width: 100%;height: 60upx;padding:30upx;box-sizing: border-box;">
+							<view style="width: 50%;font-size:30upx;color: #999;font-weight: bold; line-height: 60upx;">{{$t('afanda.ztrs')}}
+								<text style="margin-left: 15upx;color: #000;">{{dataz.directNum || '0'}}</text></view>
 							<view style="width: 50%;font-size:30upx;color: #999;font-weight: bold;text-align: left;line-height: 60upx;">{{$t('afanda.ysmrs')}}
 								<text style="color: #000;margin-left: 15upx;">{{dataz.teamNum || '0'}}</text></view>
 						</view>
-						<view style="width: 100%;height: 60upx;padding:30upx;box-sizing: border-box;display: inline-flex;">
-							<view style="width: 50%;font-size:30upx;color: #999;font-weight: bold;line-height: 60upx;">{{$t('afanda.zyj')}} <text style="margin-left: 15upx;color: #000;">{{dataz.per || '0'}}</text></view>
+						<view style="width: 100%;height: 60upx;padding:30upx;box-sizing: border-box;">
+							<view style="width: 50%;font-size:30upx;color: #999;font-weight: bold;line-height: 60upx;">{{$t('afanda.zyj')}}
+								<text style="margin-left: 15upx;color: #000;">{{dataz.per || '0'}}</text></view>
 							<view style="width: 50%;font-size:30upx;color: #999;font-weight: bold;text-align: left;line-height: 60upx;">
 								<text style="color: #000;margin-left: 15upx;"></text></view>
-						</view>
-
+						</view> -->
 					</view>
+
 				</view>
 			</view>
 		</view>
@@ -103,9 +106,9 @@
 
 			this.backgroundALL = uni.getStorageSync('localbk')
 			this.colorALL = uni.getStorageSync('localcol');
-			setTimeout(()=>{
+			setTimeout(() => {
 				this.tab_init();
-			},500)
+			}, 500)
 			console.log(this.colorALL)
 			var setdata = {
 				"token": uni.getStorageSync("token"),
@@ -113,20 +116,20 @@
 			}
 			console.log(setdata)
 			uni.request({
-				 // url: this.websiteUrl + 'afd/getMyTeamInfo',
+				// url: this.websiteUrl + 'afd/getMyTeamInfo',
 				// url: this.websiteUrl + 'user/getReport',
 				url: this.websiteUrlzh + 'afd/getInfo',
 				method: 'GET',
 				data: setdata,
 				header: {
 					'content-type': 'application/x-www-form-urlencoded',
-						"Accept-Language":'zh'
+					"Accept-Language": 'zh'
 				},
 				success: (res) => {
 					console.log(res)
-					if(res.data.code == 402){
+					if (res.data.code == 402) {
 						uni.reLaunch({
-							url:'../../login/login'
+							url: '../../login/login'
 						})
 					}
 					this.dataz = res.data.data;
@@ -138,9 +141,9 @@
 			});
 		},
 		methods: {
-			gotoMyTeam(){
+			gotoMyTeam() {
 				uni.navigateTo({
-					url:'../myteam/myteam'
+					url: '../myteam/myteam'
 				})
 			},
 			exit_btn() {
@@ -179,6 +182,19 @@
 </script>
 
 <style>
+	.temItem{
+		display: flex;
+		justify-content: space-between;
+		margin:14upx 0;
+		box-sizing: border-box;
+		padding: 10upx 14upx;
+		background-color: #F5F7FA;
+		padding: 20upx;
+	}
+	.temItemName{
+		color: #00BBF0;
+		font-weight: 600;
+	}
 	page {
 		height: 100%;
 	}
@@ -186,7 +202,7 @@
 	.container {
 		width: 100%;
 		height: 100%;
-		background: #F0F3F5;
+		background: #FFF;
 	}
 
 	.header {

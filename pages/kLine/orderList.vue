@@ -1,6 +1,6 @@
 <template>
 	<view style=" min-height:100vh; width: 100%; box-sizing: border-box;height: 100%;float: left; background-size: 100%;">
-		<image src="/static/kuangchi/tao/kcDetail.png"  class="bgImg"></image>
+		<image src="/static/kuangchi/tao/kcDetail.png" class="bgImg"></image>
 		<view class="header hi-columns" :style="'padding-top: ' + statusBarH + 'px;'">
 			<view class="header_box hi-rows hi-flex-vcenter  hi-space-between">
 				<image src="/static/home/nav_icon_back_night.png" mode="" style="width:46upx;height: 46upx;" @click="back()"></image>
@@ -53,46 +53,18 @@
 		data() {
 			return {
 				kuangjiList: [],
-				
-				
-				isShowBalls: false,
-				isQiandao: false,
-				qiandaoClass: {
-					right: '80rpx',
-					bottom: '-320rpx'
-				},
-				balls: [], //
-				ballCount: 50, //数量
-				showBiAn: false,
-				type: '', //币种类型
-				header_H: 0,
 				statusBarH: '',
-				nickname: '',
 				hb_status: true, //true 白色   false 黑色
 				sel: 0,
-				jdt: '',
-				loading_status: false,
-				circular: true, // 轮播图衔接轮播
-				xuanid: '',
-				userMeBg: userMeBg,
 				zichan: '0.000',
-				bgList: {
-					earthCircle: earthCircle,
-					earthImage: earthImage,
-					leftBg: leftBg,
-					buttonBg: buttonBg
-				},
 				show3: false,
-				
 				mima: '',
 				shu: '',
-				jiming: '',
 				qian: '',
 				userToken: uni.getStorageSync('user-token'),
 				laiid: '',
 				fromId: 0,
 				zhimi: false, //是否绑定支付密码
-				isFreeType: false, //是否是免费矿机
 			};
 		},
 		onShow() {
@@ -138,7 +110,7 @@
 						console.log(res.data);
 						if (res.data.code == 200) {
 							this.kuangjiList = res.data.data;
-							console.log('矿机列表',this.kuangjiList)
+							console.log('矿机列表', this.kuangjiList)
 							this.get_grabBag(0);
 						} else if (res.data.code == 500) {
 							this.myAlert(res.data.msg);
@@ -298,7 +270,6 @@
 					},
 					success: res => {
 						console.log('判断是否绑定', res.data);
-
 						if (res.data.code == 200) {
 							that.zhimi = res.data.data;
 						} else {}
@@ -322,7 +293,7 @@
 	};
 </script>
 <style lang="scss" scoped>
-	.bgImg{
+	.bgImg {
 		width: 100vw;
 		height: 100vh;
 		position: absolute;
@@ -330,6 +301,7 @@
 		left: 0;
 		z-index: -1;
 	}
+
 	.kuangjiList {
 		margin-top: 100upx;
 		width: 600upx;

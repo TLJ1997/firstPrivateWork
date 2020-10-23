@@ -1,10 +1,10 @@
 <template>
 	<view class="container" style="height: 100vh;">
 		<!-- image占位 -->
-		<image src="../../../static/kuangchi/tao/chaojuhe.png" mode="" style="position: absolute;top: 0;left: 0;height: 100%;width: 100%;"></image>
+		<image src="/static/kuangchi/tao/chaojuhe.png" mode="" style="position: absolute;top: 0;left: 0;height: 100%;width: 100%;"></image>
 		<view class="header hi-columns" :style="'padding-top: ' + statusBarH + 'px;'">
 			<view class="header_box hi-rows hi-flex-vcenter  hi-space-between">
-				<image src="../../../static/home/nav_icon_back_night.png" mode="" style="width:46upx;height: 46upx;" @click="exit_btn"></image>
+				<image src="/static/home/nav_icon_back_night.png" mode="" style="width:46upx;height: 46upx;" @click="exit_btn"></image>
 				<view style="color:#FFFFFF;font-size: 37upx;text-align: center;font-weight: bold;">超聚合</view>
 				<view style="color:#00BBF0;" @tap="gotoFreeDetail()">免费矿机</view>
 			</view>

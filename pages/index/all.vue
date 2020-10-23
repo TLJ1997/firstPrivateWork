@@ -75,7 +75,7 @@ export default {
 				{
 					pic: '',
 					name: this.$t('index.zb'),
-					img: '/static/index/slider/icon_destruction@2x.png'
+					img: '/static/index/slider/zhangben.png'
 				},
 				{
 					pic: '',
@@ -84,7 +84,7 @@ export default {
 				},
 				{
 					pic: '',
-					name: this.$t('index.why'),
+					name: this.$t('index.cjh'),
 					img: '/static/index/slider/weiheyue.png'
 				},
 				{
@@ -100,7 +100,7 @@ export default {
 				{
 					pic: '',
 					name: this.$t('index.qg'),
-					img: '/static/index/slider/icon_home_message@3x.png'
+					img: '/static/index/slider/qg.png'
 				},
 				{
 					pic: '',
@@ -180,20 +180,15 @@ export default {
 				uni.navigateTo({
 					url: '../afanda/chibi/chibishengxi'
 				});
-			} else if (name == This.$t('index.why')) {
+			} else if (name == This.$t('index.cjh')) {
 				// uni.showModal({
 				// 	title: this.$t('stylePulic.zwkf'),
 				// 	showCancel: false
 				// });
 				
 				uni.navigateTo({
-					// url: '../afanda/weiheyue/weiheyue'
-					url: '../kLine/index'
-					// url:'../webview/index'
+					url: 'pages/kLine/chaojuhe'
 				});
-				// uni.navigateTo({
-				// 	url: '../afanda/weiheyue/weiheyue'
-				// });
 			} else if (name == This.$t('index.cs')) {
 				uni.showModal({
 					title: this.$t('stylePulic.zwkf'),
